@@ -1,23 +1,31 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 //initial Data
 const intialData = {
-  "x": 2, 
-  "y": 2, 
-  "steps": 0, 
-  "email":"ex@example.com"
+  x: 2, 
+  y: 2, 
+  steps: 0, 
+  email:""
+}
+const errorData = {
+  upErr: "You can't go up",
+  downErr: "You can't go down",
+  leftErr: "You can't go left",
+  rightErr: "You can't go right"
 }
 
 export default function AppFunctional(props) {
+  //States
   const [data, setData] = useState(intialData)
   const [message, setMessage] = useState(null)
-  
+  const [error, setError] = useState(null)
+  //State Breakdown
   const x = data.x
   const y = data.y
   const steps = data.steps
   const email = data.email
-
+  //Data Post
   const postData = data =>{
     axios.post("http://localhost:9000/api/result", data)
       .then(res => {
@@ -26,18 +34,17 @@ export default function AppFunctional(props) {
       })
       .catch(res => console.log(res))
   }
-  
   //onClick functions
   const addX = () => {
     if (x < 3){
       return(
         setData({ x: x + 1, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(null)
       )
     } else {
       return (
         setData({ x: x, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(errorData.rightErr)
       )
     }
   }
@@ -46,12 +53,12 @@ export default function AppFunctional(props) {
     if (x > 1){
       return(
         setData({ x: x - 1, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(null)
       )
     } else {
       return (
         setData({ x: x, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(errorData.leftErr)
       )
     }
   }
@@ -60,37 +67,52 @@ export default function AppFunctional(props) {
     if (y < 3){
       return(
         setData({ x: x, y: y + 1, steps: steps + 1, email: email }),
-        postData(data)
+        setError(null)
       )
     } else {
       return (
         setData({ x: x, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(errorData.upErr)
       )
     }
   }
   
   const subY = () => {
-    if (x > 1){
+    if (y > 1){
       return(
         setData({ x: x, y: y - 1, steps: steps + 1, email: email }),
-        postData(data)
+        setError(null)
       )
     } else {
       return (
         setData({ x: x, y: y, steps: steps + 1, email: email }),
-        postData(data)
+        setError(errorData.downErr)
       )
     }
   }
 
   const reset = () => {
+    setData({ "x": 2, "y": 2, "steps": 0, "email": email })
+    setError(null)
+    setMessage(null)
+  }
+  
+  const updateEmail = (inputValue) => {
+    setData({...data, email: inputValue})
+  }
+
+  const onSubmit = evt =>{
+    evt.preventDefault()
+    postData(data)
     setData(intialData)
   }
-    
-  
-  // console.log(data)
-  
+
+  const onChange = evt => {
+    const value  = evt.target.value
+    updateEmail(value)
+  }
+  console.log(data)
+  console.log(error)
 
   return (
     <div id="wrapper" className={props.className}>
@@ -110,33 +132,25 @@ export default function AppFunctional(props) {
         <div className="square"></div>
       </div>
       <div className="info">
-        <h3 id="message">{message}</h3>
+        <h3 id="message">{error === null ? message : error}</h3>
       </div>
       <div id="keypad">
-        <button 
-          id="left" 
-          onClick={() => subX()}
-        > LEFT </button>
-        <button 
-          id="up" 
-          onClick={() => addY()}
-        > UP </button>
-        <button  
-          id="right" 
-          onClick={() => addX()}
-        > RIGHT </button>
-        <button 
-          id="down" 
-          onClick={() => subY()}
-        > DOWN  </button>
-        <button 
-          id="reset" 
-          onClick={() => reset()}
-        > reset </button>
+        <button id="left" onClick={() => subX()}>LEFT</button>
+        <button id="up" onClick={() => addY()}>UP</button>
+        <button  id="right" onClick={() => addX()}>RIGHT</button>
+        <button id="down" onClick={() => subY()}>DOWN</button>
+        <button id="reset" onClick={() => reset()}> reset </button>
       </div>
-      <form>
-        <input id="email" type="email" placeholder="type email"></input>
-        <input id="submit" type="submit"></input>
+      <form onSubmit={onSubmit}>
+        <input 
+          id="email" 
+          type="email"
+          name='email' 
+          placeholder="type email"
+          onChange={onChange}
+          value={data.email}
+        />
+        <input id="submit" type="submit" ></input>
       </form>
     </div>
   )
