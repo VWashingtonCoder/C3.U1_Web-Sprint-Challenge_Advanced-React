@@ -29,7 +29,6 @@ export default function AppFunctional(props) {
   const postData = data =>{
     axios.post("http://localhost:9000/api/result", data)
       .then(res => {
-        console.log((res.data.message))
         setMessage(res.data.message)
       })
       .catch(res => console.log(res))
@@ -39,7 +38,9 @@ export default function AppFunctional(props) {
     if (x < 3){
       return(
         setData({ x: x + 1, y: y, steps: steps + 1, email: email }),
-        setError(null)
+        setError(null),
+        setMessage(null),
+        document.getElementById("grid").classList.toggle('active')
       )
     } else {
       return (
@@ -53,7 +54,8 @@ export default function AppFunctional(props) {
     if (x > 1){
       return(
         setData({ x: x - 1, y: y, steps: steps + 1, email: email }),
-        setError(null)
+        setError(null),
+        setMessage(null)
       )
     } else {
       return (
@@ -67,7 +69,8 @@ export default function AppFunctional(props) {
     if (y < 3){
       return(
         setData({ x: x, y: y + 1, steps: steps + 1, email: email }),
-        setError(null)
+        setError(null),
+        setMessage(null)
       )
     } else {
       return (
@@ -81,7 +84,8 @@ export default function AppFunctional(props) {
     if (y > 1){
       return(
         setData({ x: x, y: y - 1, steps: steps + 1, email: email }),
-        setError(null)
+        setError(null),
+        setMessage(null)
       )
     } else {
       return (
@@ -103,16 +107,16 @@ export default function AppFunctional(props) {
 
   const onSubmit = evt =>{
     evt.preventDefault()
+    setError(null)
     postData(data)
-    setData(intialData)
+    setData({ ...data, email: "" })
+    
   }
 
   const onChange = evt => {
     const value  = evt.target.value
     updateEmail(value)
   }
-  console.log(data)
-  console.log(error)
 
   return (
     <div id="wrapper" className={props.className}>
