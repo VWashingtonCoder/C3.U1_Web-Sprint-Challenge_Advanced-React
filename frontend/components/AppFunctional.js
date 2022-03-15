@@ -136,7 +136,7 @@ export default function AppFunctional(props) {
         <div className="square"></div>
       </div>
       <div className="info">
-        <h3 id="message">{error === null ? message : error}</h3>
+        <h3 id="message">{message === null ? error : message}</h3>
       </div>
       <div id="keypad">
         <button id="left" onClick={() => subX()}>LEFT</button>

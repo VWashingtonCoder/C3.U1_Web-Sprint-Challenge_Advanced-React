@@ -9,8 +9,8 @@ const intialState = {
     steps: 0, 
     email:""
   },
-  message: '',
-  error: '',
+  message: null,
+  error: null,
   errorData: {
     upErr: "You can't go up",
     downErr: "You can't go down",
@@ -29,7 +29,8 @@ export default class AppClass extends React.Component {
       console.log(res.data)
       this.setState({
         ...this.state,
-        message: res.data.message
+        message: res.data.message,
+        error: null
       })
     })
     .catch(err => {
@@ -145,8 +146,8 @@ export default class AppClass extends React.Component {
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">Coordinates (2, 2)</h3>
-          <h3 id="steps">You moved 0 times</h3>
+          <h3 id="coordinates">Coordinates ({data.x}, {data.y})</h3>
+          <h3 id="steps">You moved {data.steps} times</h3>
         </div>
         <div id="grid">
           <div className="square"></div>
@@ -160,7 +161,7 @@ export default class AppClass extends React.Component {
           <div className="square"></div>
         </div>
         <div className="info">
-          <h3 id="message"></h3>
+          <h3 id="message">{error === null ? message : error}</h3>
         </div>
         <div id="keypad">
           <button id="left" onClick={() => this.subX()}>LEFT</button>
