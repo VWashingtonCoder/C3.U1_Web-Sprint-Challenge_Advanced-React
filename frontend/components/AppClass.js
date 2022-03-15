@@ -39,14 +39,12 @@ export default class AppClass extends React.Component {
       })
     })
   }
-
   updateEmail = (emailValue) => {
     this.setState({
       ...this.state,
       data: { ...this.state.data, email: emailValue }
     })
   }
-
   onSubmit = evt =>{
     evt.preventDefault()
     console.log(this.state.data)
@@ -57,17 +55,93 @@ export default class AppClass extends React.Component {
       data: { ...this.state.data, email: '' },
     })
   }
-  
   onChange = evt => {
     const value = evt.target.value
     this.updateEmail(value)
   }
-  
-
+  // Keypad Functions
+  addX = () => {
+    const x = this.state.data.x
+    const steps = this.state.data.steps
+    if (x < 3) {
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, x: x + 1, steps: steps + 1 },
+        error: null,
+        message: null,
+      })
+    }else{
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, steps: steps + 1 },
+        error: this.state.errorData.rightErr,
+      })
+    }
+  }
+  subX = () => {
+    const x = this.state.data.x
+    const steps = this.state.data.steps
+    if (x > 1) {
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, x: x - 1, steps: steps + 1 },
+        error: null,
+        message: null,
+      })
+    }else{
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, steps: steps + 1 },
+        error: this.state.errorData.leftErr,
+      })
+    }
+  }
+  addY = () => {
+    const y = this.state.data.y
+    const steps = this.state.data.steps
+    if (y < 3) {
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, y: y + 1, steps: steps + 1 },
+        error: null,
+        message: null,
+      })
+    }else{
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, steps: steps + 1 },
+        error: this.state.errorData.upErr,
+      })
+    }
+  }
+  subY = () => {
+    const y = this.state.data.y
+    const steps = this.state.data.steps
+    if (y > 1) {
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, y: y - 1, steps: steps + 1 },
+        error: null,
+        message: null,
+      })
+    }else{
+      this.setState({
+        ...this.state,
+        data: { ...this.state.data, steps: steps + 1 },
+        error: this.state.errorData.downErr,
+      })
+    }
+  }
+  reset = () => {
+    this.setState(intialState)
+  }
 
   render() {
     const { className } = this.props
-    const { data, message, error, errorData } = this.state
+    const { data, message, error } = this.state
+    console.log(data)
+    console.log(`error: ${error}`)
+    console.log(`message: ${message}`)
     return (
       <div id="wrapper" className={className}>
         <div className="info">
@@ -89,11 +163,11 @@ export default class AppClass extends React.Component {
           <h3 id="message"></h3>
         </div>
         <div id="keypad">
-          <button id="left">LEFT</button>
-          <button id="up">UP</button>
-          <button id="right">RIGHT</button>
-          <button id="down">DOWN</button>
-          <button id="reset">reset</button>
+          <button id="left" onClick={() => this.subX()}>LEFT</button>
+          <button id="up" onClick={() => this.addY()}>UP</button>
+          <button id="right" onClick={() => this.addX()}>RIGHT</button>
+          <button id="down" onClick={() => this.subY()}>DOWN</button>
+          <button id="reset" onClick={() => this.reset()}>reset</button>
         </div>
         <form onSubmit={this.onSubmit}>
           <input 
