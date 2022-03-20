@@ -39,8 +39,7 @@ export default function AppFunctional(props) {
       return(
         setData({ x: x + 1, y: y, steps: steps + 1, email: email }),
         setError(null),
-        setMessage(null),
-        document.getElementById("grid").classList.toggle('active')
+        setMessage(null)
       )
     } else {
       return (
