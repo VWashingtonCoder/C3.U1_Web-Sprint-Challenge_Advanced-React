@@ -1,157 +1,165 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 //initial Data
-const intialData = {
-  x: 2, 
-  y: 2, 
-  steps: 0, 
-  email:""
-}
-const errorData = {
+const errData = {
   upErr: "You can't go up",
   downErr: "You can't go down",
   leftErr: "You can't go left",
-  rightErr: "You can't go right"
+  rightErr: "You can't go right",
 }
+
 
 export default function AppFunctional(props) {
   //States
-  const [data, setData] = useState(intialData)
+  const [coordinates, setCoords] = useState({ x: null, y: null })
+  const [steps, setSteps] = useState(0)
+  const [index, setIndex] = useState(4)
   const [message, setMessage] = useState(null)
-  const [error, setError] = useState(null)
+  const [email, setEmail] = useState("")
   //State Breakdown
-  const x = data.x
-  const y = data.y
-  const steps = data.steps
-  const email = data.email
-  //Data Post
+  const { x, y } = coordinates 
+
+  console.log(email)
+  // useEffect
+  useEffect(() => {
+    getCoordinates(index)
+  }, [])
+  // initial coodrinate setter
+  function getCoordinates(index) {
+    const columns = 3;
+    const coorX = Math.floor(index % columns)
+    const coorY = Math.floor(index / columns)
+    setCoords({...coordinates, x: coorX + 1, y: coorY + 1})
+  }
+  // Keypad Handlers
+  function moveLeft() {
+    if (x > 1){
+      setIndex(index - 1)
+      getCoordinates(index - 1)
+      setMessage(null)
+      setSteps(steps + 1)
+    } else {
+      setMessage(errData.leftErr)
+    }
+  }
+  function moveUp() {
+    if (y > 1) {
+      setIndex(index - 3)
+      getCoordinates(index - 3)
+      setMessage(null)
+      setSteps(steps + 1)
+    } else {
+      setMessage(errData.upErr)
+    }
+  }
+  function moveRight() {
+    if (x < 3) {
+      setIndex(index + 1)
+      getCoordinates(index + 1)
+      setMessage(null)
+      setSteps(steps + 1)
+    } else {
+      setMessage(errData.rightErr)
+    }
+  }
+  function moveDown() {
+    if (y < 3) {
+      setIndex(index + 3)
+      getCoordinates(index + 3)
+      setMessage(null)
+      setSteps(steps + 1)
+    } else {
+      setMessage(errData.downErr)
+    }
+  }
+  function reset() {
+    getCoordinates(4)
+    setSteps(0)
+    setIndex(4)
+    setEmail("")
+    setMessage(null)
+    
+  }
+  // Change Handlers
+   const onChange = evt => {
+     console.log(evt)
+    const value = evt.target.value
+    setEmail(value)
+  }
+  // Data Post
   const postData = data =>{
     axios.post("http://localhost:9000/api/result", data)
       .then(res => {
         setMessage(res.data.message)
       })
-      .catch(res => console.log(res))
+      .catch(err => setMessage(err.response.data.message))
   }
-  //onClick functions
-  const addX = () => {
-    if (x < 3){
-      return(
-        setData({ x: x + 1, y: y, steps: steps + 1, email: email }),
-        setError(null),
-        setMessage(null)
-      )
-    } else {
-      return (
-        setData({ x: x, y: y, steps: steps + 1, email: email }),
-        setError(errorData.rightErr)
-      )
-    }
-  }
-
-  const subX = () => { 
-    if (x > 1){
-      return(
-        setData({ x: x - 1, y: y, steps: steps + 1, email: email }),
-        setError(null),
-        setMessage(null)
-      )
-    } else {
-      return (
-        setData({ x: x, y: y, steps: steps + 1, email: email }),
-        setError(errorData.leftErr)
-      )
-    }
-  }
-  
-  const addY = () => {
-    if (y < 3){
-      return(
-        setData({ x: x, y: y + 1, steps: steps + 1, email: email }),
-        setError(null),
-        setMessage(null)
-      )
-    } else {
-      return (
-        setData({ x: x, y: y, steps: steps + 1, email: email }),
-        setError(errorData.upErr)
-      )
-    }
-  }
-  
-  const subY = () => {
-    if (y > 1){
-      return(
-        setData({ x: x, y: y - 1, steps: steps + 1, email: email }),
-        setError(null),
-        setMessage(null)
-      )
-    } else {
-      return (
-        setData({ x: x, y: y, steps: steps + 1, email: email }),
-        setError(errorData.downErr)
-      )
-    }
-  }
-
-  const reset = () => {
-    setData({ "x": 2, "y": 2, "steps": 0, "email": email })
-    setError(null)
-    setMessage(null)
-  }
-  
-  const updateEmail = (inputValue) => {
-    setData({...data, email: inputValue})
-  }
-
+  // Submit Handler
   const onSubmit = evt =>{
     evt.preventDefault()
-    setError(null)
-    postData(data)
-    setData({ ...data, email: "" })
-    
+    const userData = { x: x, y: y, steps: steps, email: email }
+    postData(userData)
+    setEmail("")
   }
-
-  const onChange = evt => {
-    const value  = evt.target.value
-    updateEmail(value)
-  }
+ 
+  
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">Coordinates ({x}, {y})</h3>
-        <h3 id="steps">You moved {steps} times</h3>
-      </div>
+        <h3 id="steps">
+          {steps === 1 ? `You moved ${steps} time` : `You moved ${steps} times`}
+        </h3>
+      </div>  
       <div id="grid">
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square active">B</div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
+        <div className={index === 0 ? 'square active' : 'square'}>
+          {index === 0 ? 'B' : ''}
+        </div>
+        <div className={index === 1 ? 'square active' : 'square'}>
+          {index === 1 ? 'B' : ''}
+        </div>
+        <div className={index === 2 ? 'square active' : 'square'}>
+          {index === 2 ? 'B' : ''}
+        </div>
+        <div className={index === 3 ? 'square active' : 'square'}>
+          {index === 3 ? 'B' : ''}
+        </div>
+        <div className={index === 4 ? 'square active' : 'square'}>
+          {index === 4 ? 'B' : ''}
+        </div>
+        <div className={index === 5 ? 'square active' : 'square'}>
+          {index === 5 ? 'B' : ''}
+        </div>
+        <div className={index === 6 ? 'square active' : 'square'}>
+          {index === 6 ? 'B' : ''}
+        </div>
+        <div className={index === 7 ? 'square active' : 'square'}>
+          {index === 7 ? 'B' : ''}
+        </div>
+        <div className={index === 8 ? 'square active' : 'square'}>
+          {index === 8 ? 'B' : ''}
+        </div>
       </div>
       <div className="info">
-        <h3 id="message">{message === null ? error : message}</h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
-        <button id="left" onClick={() => subX()}>LEFT</button>
-        <button id="up" onClick={() => addY()}>UP</button>
-        <button  id="right" onClick={() => addX()}>RIGHT</button>
-        <button id="down" onClick={() => subY()}>DOWN</button>
-        <button id="reset" onClick={() => reset()}> reset </button>
+        <button id="left" onClick={moveLeft}>LEFT</button>
+        <button id="up" onClick={moveUp}>UP</button>
+        <button  id="right" onClick={moveRight}>RIGHT</button>
+        <button id="down" onClick={moveDown}>DOWN</button>
+        <button id="reset" onClick={reset}> reset </button>
       </div>
       <form onSubmit={onSubmit}>
         <input 
-          id="email" 
-          type="email"
-          name='email' 
+          id='email'
+          name='email'
+          type='email' 
+          value={email}
           placeholder="type email"
           onChange={onChange}
-          value={data.email}
         />
         <input id="submit" type="submit" ></input>
       </form>
